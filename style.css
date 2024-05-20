@@ -10,6 +10,7 @@ body {
     position: relative;
     font-size: 100px;
     text-align: center;
+    top: 30px;
 }
 
 .boneco {
@@ -33,4 +34,14 @@ body {
     background-image: url("imagens/green_platform.png");
     background-repeat: no-repeat;
     position: absolute;
+}
+
+.score {
+    position: absolute;
+    top: -5px;
+    font-size: 40px;
+    color: white;
+    width: 400px;
+    text-align: center;
+    background-color: #f1e8de;
 }
