@@ -1,20 +1,51 @@
 const grade = document.querySelector(".grade");
 const score = document.querySelector(".score");
-let quantidadeDeScore = document.querySelector(".score > span");
+var quantidadeDeScore = document.querySelector(".score > span");
 const quantidadeDePlataformas = 5;
 var  plataformasEmJogo = [];
+var eGameOver = false;
+var estaOcorrendoIntervaloDePulo = false;
 
-//TODO  mover o boneco para esquerda e direita + mudar a posição do boneco de acordo com o botão clicado (esquerda ou direita)
+// Mover o boneco para esquerda e direita + mudar a posição do boneco de acordo com o botão clicado (esquerda ou direita)
+function bonecoIrParaEsquerdaOuDireita(teclaPressionada) {
+    // Se o jogador perdeu não execute
+    if (eGameOver) return;
 
-// TODO fim de jogo
-// FASE PARA TESTES
+    let boneco = document.querySelector(".boneco");
+    boneco.style.right = 0 + "px";
+    let quantidadeDePixelsDoLadoEsquerdo = Number.parseFloat((boneco.style.left).replace(/[a-zA-Z]/g, ''));
+
+    switch (teclaPressionada) {
+        case "ArrowLeft":
+            boneco.style.backgroundImage = "url('imagens/doodle_left.png')";
+            boneco.style.backgroundPosition = "13px -12px";
+
+            // Se alcançar o limite da tela, retorne. Se não, vá para o lado.
+            if (quantidadeDePixelsDoLadoEsquerdo == 0 || quantidadeDePixelsDoLadoEsquerdo <= 8) return;
+            else {
+                boneco.style.left = (quantidadeDePixelsDoLadoEsquerdo - 10) + "px";
+            }
+            break;
+        case "ArrowRight":
+            boneco.style.backgroundImage = "url('imagens/doodle_right.png')";
+            boneco.style.backgroundPosition = "-13px -12px";
+            // Se alcançar o limite da tela, retorne. Se não, vá para o lado.
+            if (quantidadeDePixelsDoLadoEsquerdo == 310 || quantidadeDePixelsDoLadoEsquerdo >= 302) return;
+            else {;
+                boneco.style.left = (quantidadeDePixelsDoLadoEsquerdo + 10) + "px";
+            }
+            break;
+    }
+}
+
+
+// fim de jogo
 function gameOver() {
     quantidadeDeScore.remove();
     score.innerHTML = "Game Over!";
 }
 
-// TODO queda do boneco
-// FASE PARA TESTES
+// queda de boneco
 function cairBoneco() {
     const boneco = document.querySelector(".boneco");
 
@@ -26,7 +57,7 @@ function cairBoneco() {
 
     // verificar se a cada subida do boneco existe uma plataforma para pular
     function verificarElementos() {
-        const boneco = document.querySelector(".boneco");
+        //const boneco = document.querySelector(".boneco");
         const quantidadeDePixelsDoBottomDoBoneco = Number.parseFloat((boneco.style.bottom).replace(/[a-zA-Z]/g, ''));
 
         plataformasEmJogo.forEach(function (elementoAtual, indice) {
@@ -43,10 +74,12 @@ function cairBoneco() {
                 clearInterval(intervalo);
                 moverPlataforma();
                 quantidadeDeScore.innerHTML = Number(quantidadeDeScore.innerHTML) + 1;
+                pularBoneco(indice);
             }
             
             // se o boneco chegar ao final da tela, então gameOver
             if (quantidadeDePixelsDoBottomDoBoneco == 0) {
+                eGameOver = true;
                 clearInterval(intervalo);
                 gameOver();
             }
@@ -54,8 +87,9 @@ function cairBoneco() {
     }
 }
 
+// Se o intervalo já estiver sendo executado, pare e comece de novo
 function pularBoneco(indice) {
-    boneco = document.querySelector(".boneco");
+    let boneco = document.querySelector(".boneco");
     let quantidadeDePixels = Number.parseFloat((boneco.style.bottom).replace(/[a-zA-Z]/g, ''));
     let limiteDePixelsPorPulo = Number.parseFloat((plataformasEmJogo[indice].style.bottom).replace(/[a-zA-Z]/g, ''));
 
@@ -67,54 +101,34 @@ function pularBoneco(indice) {
 
     function pararIntervalo() {
         // se o boneco chegar ao topo, então desça
-        if (quantidadeDePixels === 520) {
-            console.log("jdjaf")
+        if (quantidadeDePixels == 420) {
             clearInterval(intervalo);
             cairBoneco();
         }
         // se alcançar a quantidade de pulos, então desça
-        else if (quantidadeDePixels === limiteDePixelsPorPulo + 200) {
+        else if (quantidadeDePixels == limiteDePixelsPorPulo + 300) {
             clearInterval(intervalo);
             cairBoneco();
         }
     };
 };
 
-// removidor de plataforma
-function removerPlataforma(indice) {
-    plataformasEmJogo[indice].remove();
-    plataformasEmJogo.splice(indice, 1);
-    setTimeout(() => {
-        criarPlataforma();
-    }, 200);
-
-    pularBoneco(indice);
-};
-
-
+//mover plataformas para baixco
 function moverPlataforma() {
-    descerPlataformas();
-
-    function descerPlataformas() {
         let intervalo = setTimeout(() => {
-            plataformasEmJogo.forEach(function (elementoAtual, indice) {
-                let quantidadeDePixels = (elementoAtual.style.bottom).replace(/[a-zA-Z]/g, '');
-                elementoAtual.style.bottom = quantidadeDePixels - 120 + "px";
-                removerPlataformaNoFinalDaGrade(elementoAtual, indice);
+           plataformasEmJogo.forEach(function (elementoAtual, indice) {
+               let quantidadeDePixels = Number((elementoAtual.style.bottom).replace(/[a-zA-Z]/g, ''));
+               elementoAtual.style.bottom = quantidadeDePixels - 120 + "px";
+               if (elementoAtual.style.bottom == "-20px") {
+                   setTimeout(() => {
+                       plataformasEmJogo[indice].remove();
+                       plataformasEmJogo.splice(indice, 1);
+                       criarPlataforma();
+                   }, 10);
+               }
             });
-        }, 100);
+       }, 100);
     };
-
-    //remover plataformas que estejam no final da grade
-    function removerPlataformaNoFinalDaGrade(elementoAtual, indice) {
-            let quantidadeDePixels = Number.parseFloat((elementoAtual.style.bottom).replace(/[a-zA-Z]/g, ''));
-        if (quantidadeDePixels <= 0) {
-            setTimeout(() => {
-                removerPlataforma(indice);
-            }, 0);
-            }
-    };
-};
 
 // criar plataformas no início e durante o jogo
 function criarPlataforma() {
@@ -140,7 +154,7 @@ function criarPlataforma() {
         const chamarClass = new novasPlataformas(novoPratoBottom);
         }
     }
-    // mas se tiver faltando crie apenas o que falta
+    // mas se tiver faltando crie apenas o que está falta
     else if (plataformasEmJogo.length < 5 && plataformasEmJogo.length > 0) {
         const chamarClass = new novasPlataformas(580);
     }
@@ -150,7 +164,9 @@ function criarPlataforma() {
 // criar boneco no início do jogo
 function criarBoneco() {
     const boneco = document.createElement("div");
-    boneco.classList.add("boneco", "boneco-para-direita");
+    boneco.classList.add("boneco");
+    boneco.style.backgroundImage = "url('imagens/doodle_right.png')";
+    boneco.style.backgroundPosition = "-13px -12px";
     boneco.style.bottom = Number.parseFloat((plataformasEmJogo[0].style.bottom).replace(/[a-zA-Z]/g, '')) + 60 + "px";
     boneco.style.left = Number.parseFloat((plataformasEmJogo[0].style.left).replace(/[a-zA-Z]/g, '')) + "px";
     grade.appendChild(boneco);
@@ -160,3 +176,9 @@ function criarBoneco() {
 
 criarPlataforma();
 criarBoneco();
+
+document.addEventListener("keydown", function(event) {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        bonecoIrParaEsquerdaOuDireita(event.key);
+    }
+});

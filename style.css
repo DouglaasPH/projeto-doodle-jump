@@ -17,15 +17,6 @@ body {
     width: 89px;
     height: 85px;
     position: absolute;
-    background-position: -13px -12px;
-}
-
-.boneco-para-direita {
-    background-image: url("imagens/doodle_right.png");
-}
-
-.boneco-para-esquerda {
-    background-image: url("imagens/doodle_left.png");
 }
 
 .plataforma {
